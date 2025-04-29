@@ -134,30 +134,35 @@ class EvalPosition:
                 continue
             
             # black piece
+            # the eval function is flipped for black so:
+            # a8 black --> a1 white (0 --> 56)
+            # b7 black --> b2 white (9 --> 49)
+            # i = 8*(7 - i // 8) + (i % 8)
+            j = 8*(7 - i // 8) + (i % 8)
             if _color == 'b':
                 if _piece == 'P':
                     bcentipawns += self.P 
-                    bcentipawns += self.pawn_eval[i]
+                    bcentipawns += self.pawn_eval[j]
 
                 if _piece == 'N':
                     bcentipawns += self.N
-                    bcentipawns += self.knight_eval[i]
+                    bcentipawns += self.knight_eval[j]
 
                 if _piece == 'B':
                     bcentipawns += self.B
-                    bcentipawns += self.bishop_eval[i]
+                    bcentipawns += self.bishop_eval[j]
 
                 if _piece == 'R':
                     bcentipawns += self.R 
-                    bcentipawns += self.rook_eval[i]
+                    bcentipawns += self.rook_eval[j]
 
                 if _piece == 'Q':
                     bcentipawns += self.Q 
-                    bcentipawns += self.queen_eval[i]
+                    bcentipawns += self.queen_eval[j]
 
                 if _piece == 'K':
                     bcentipawns += self.K
-                    bcentipawns += self.king_eval[i]
+                    bcentipawns += self.king_eval[j]
 
         return wcentipawns, bcentipawns, wcentipawns - bcentipawns
 
