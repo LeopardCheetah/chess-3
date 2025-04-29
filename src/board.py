@@ -156,8 +156,8 @@ class Board:
 
 
     def set_piece_tosq(self, sq, piece, color):
-        print(sq, piece, color)
         return self.change_sq_to_piece(sq, piece, color)
+    
     #####################
     ## OTHER UTILITIES ##
     #####################

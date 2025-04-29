@@ -132,6 +132,13 @@ while not game_finished:
     if player_color == 1:
         game.printboard_blackpov()
 
+    if (game.white_turn and not player_color) or (not game.white_turn and player_color):
+        # is player's turn!
+        pass
+    else:
+        time.sleep(1.5) # delay
+
+
 
 
 
