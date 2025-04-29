@@ -8,7 +8,7 @@ class _color:
     WARNING = '\033[93m'
     GREEN = '\033[92m'
     FAIL = '\033[91m'
-    ENDCOLOR = '\033[0m'
+    ENDCOLOR = '\033[00m'
 
     # these not used
     BOLD = '\033[1m'
@@ -64,6 +64,10 @@ class Board:
     # args returned: none
     def change_sq_to_piece(self, square, piece, color):
         _rank, _file = self._cnv_sq_to_pair(square)
+
+        if piece is None:
+            self.board[_rank][_file] = f'{self.neutral_color}.'
+            return
 
         # piece validation
         if piece.upper() not in ['P', 'N', 'B', 'R', 'Q', 'K']:
@@ -140,8 +144,20 @@ class Board:
         return
 
 
+    ####################
+    ###### LEGACY ######
+    ####################
+
+    def get_piece_color_atsq(self, sq):
+        return self.get_piece_at_sq(sq)[1]
+
+    def get_piece_type_atsq(self, sq):
+        return self.get_piece_at_sq(sq)[0]
 
 
+    def set_piece_tosq(self, sq, piece, color):
+        print(sq, piece, color)
+        return self.change_sq_to_piece(sq, piece, color)
     #####################
     ## OTHER UTILITIES ##
     #####################
@@ -192,5 +208,6 @@ class Board:
         self.move_piece(start_sq, end_sq)
         return
     
+
     # we done with this class
 
