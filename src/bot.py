@@ -3,12 +3,9 @@
 import cgame 
 import time
 import sys # for quitting
-import random # for randomly selecting moves
 import copy
 
 import eval_position as ceval
-
-
 
 
 def clear():
@@ -20,19 +17,21 @@ clear()
 
 # print("Would you like to play as White or Black?")
 # player_color_in = input("> ").strip().lower()
-player_color_in = 'w'
+# player_color_in = 'w'
 
-player_color = -1
-if player_color_in[0] == 'w':
-    player_color = 0
+# player_color = -1
+# if player_color_in[0] == 'w':
+#     player_color = 0
 
-# later todo -- fix this
-if player_color_in[0] == 'b':
-    player_color = 1
+# # if player_color_in[0] == 'b':
+# #    player_color = 1
 
-if player_color_in[0] not in ['w', 'b']:
-    sys.exit(f"uhhhh '{player_color_in}' is not a valid player color.")
+# if player_color_in[0] not in ['w', 'b']:
+#     sys.exit(f"'{player_color_in}' is not a valid color")
 
+
+# manual
+player_color = 0
 
 game = cgame.ChessGame()
 evaluator_object = ceval.EvalPosition() # i hate this oop
@@ -41,7 +40,6 @@ game_finished = False
 while not game_finished:
 
     # check if game is finished
-
     if game.white_turn and len(game.generate_white_candidate_moves()) == 0:
         # game is over
         game_finished = True
@@ -82,7 +80,6 @@ while not game_finished:
             print()
             print("dang you stalemated the white king")
             print("it's a draw now :///")
-
     if not game.white_turn and len(game.generate_black_candidate_moves()) == 0:
         # game is once again over
         game_finished = True
@@ -129,14 +126,14 @@ while not game_finished:
         # player is white
         game.printboard() # print board
     
-    if player_color == 1:
-        game.printboard_blackpov()
+    # if player_color == 1:
+    #    game.printboard_blackpov()
 
     if (game.white_turn and not player_color) or (not game.white_turn and player_color):
         # is player's turn!
         pass
     else:
-        time.sleep(1.5) # delay
+        time.sleep(1.5) # delay before computer moves
 
 
 
@@ -206,71 +203,9 @@ while not game_finished:
         time.sleep(1)
         continue
     
-    if not game.white_turn and player_color == 1:
-        # player is black, it is black's turn
-        # query in the form [start_sq] [end_sq] [promotion]
-        
-        print("Please enter your move in the form '[starting square] [ending square] [promotion]'. If you're move does not need promotion, leave it blank.")
-        print("For example, entering in 'e2 e4' will move a piece (if it exists) from e2 to e4. Similarly, 'a7 a8 N' will move a piece from a7 to a8 and attempt to promote it to a knight.")
-        print()
-        print("If you want to castle, use 0-0 or 0-0-0 respectively (use zeroes).")
-    
-        move = input("> ")
-        move_components = move.strip().split()
 
-        # we castlign
-        if move == '0-0' or move == '0-0-0':
-            if move == '0-0':
-                # kingside castling
-                status = game.send_black_move('e8', 'g8')
-                if status == 0:
-                    continue
-                
-                # status is bad
-                print("uh castling doesn't work try something else sorry")
-                time.sleep(1)
-                continue
-            
-            # move = 0-0-0
-            status = game.send_black_move('e8', 'c8')
-            if status == 0:
-                continue
-            
-            print("uh queenside castling doesn't work right now sorry")
-            time.sleep(1.1)
-            continue
-
-
-
-
-        if len(move_components) == 2:
-            status = game.send_black_move(move_components[0], move_components[1])
-            if status == 0:
-                continue
-            
-            # status is bad
-            print("That move didn't send for some reason. Please try again.")
-            time.sleep(1)
-            continue
-        
-
-        if len(move_components) == 3:
-            status = game.send_black_move(move_components[0], move_components[1], move_components[2])
-            if status == 0:
-                continue
-            
-            print("That move didn't send for some reason. Please try again.")
-            time.sleep(1)
-            continue
-        
-        print("The move you inputted is formatted incorrectly. Please try again.")
-        time.sleep(1)
-        continue
-    
-
-
+    # bot generates move (as black)
     if not game.white_turn and player_color == 0:
-        # it's black's move, and black is the random mover bot
         _possible_moves = game.generate_black_candidate_moves()
         _board = game.get_board_state()
         _potential_board = copy.deepcopy(_board) # will be overriden every iteration to save memory
@@ -287,8 +222,7 @@ while not game_finished:
 
             # move, assuming no promotion
             if len(_pair) != 2:
-                # promotion
-                print('promotion ont supported for eval yet')
+                print('promotion not supported for eval yet')
                 quit()
 
             _potential_board.send_move(_pair[0], _pair[1])
@@ -309,23 +243,7 @@ while not game_finished:
         
         game.send_black_move(_best_move[0], _best_move[1], _best_move[2])
         continue
-        # end eval
-
-
-    
-    if game.white_turn and player_color == 1:
-        # it's white's move, and white is the random mover bot
-        possible_moves = game.generate_white_candidate_moves()
-        move_pair = random.choice(possible_moves) # randomly select one
-        # play move
-
-        if len(move_pair) == 2:
-            
-            game.send_white_move(move_pair[0], move_pair[1])
-            continue
-        
-        game.send_white_move(move_pair[0], move_pair[1], move_pair[2])
-        continue
+        # end black eval
     
 
     continue 
