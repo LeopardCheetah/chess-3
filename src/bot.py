@@ -208,33 +208,81 @@ while not game_finished:
     if not game.white_turn and player_color == 0:
         _possible_moves = game.generate_black_candidate_moves()
         _board = game.get_board_state()
-        _potential_board = copy.deepcopy(_board) # will be overriden every iteration to save memory
+        # _potential_board = copy.deepcopy(_board) # will be overriden every iteration to save memory
 
 
+        
         # generate max evales
-        _max_bcentipawns = -99999999999999
+        # _max_bcentipawns = -99999999999999
+        # _best_move = (None, None)
+
+        ## this is a one-ply search
+        # for _pair in _possible_moves:
+        #     # generate position + evaluate it
+        #     _potential_board = copy.deepcopy(_board)
+        #     # deep copied board
+
+        #     # move, assuming no promotion
+        #     if len(_pair) != 2:
+        #         print('promotion not supported for eval yet')
+        #         quit()
+
+        #     _potential_board.send_move(_pair[0], _pair[1])
+        #     _eval = -1 * (ceval.EvalPosition().eval_position(_potential_board)[2])
+
+        #     print(_pair, _eval)
+
+        #     if _eval > _max_bcentipawns:
+        #         _max_bcentipawns = _eval
+        #         _best_move = _pair
+            
+        #     continue
+
+
+
+
+
+        _one_ply_ahead_game = copy.deepcopy(game)
+        _min_wcentipawns = 99999999999999
         _best_move = (None, None)
 
         for _pair in _possible_moves:
-            # generate position + evaluate it
-            _potential_board = copy.deepcopy(_board)
-            # deep copied board
-
-            # move, assuming no promotion
+            # make sample black move
+            _one_ply_ahead_game = copy.deepcopy(game)
             if len(_pair) != 2:
-                print('promotion not supported for eval yet')
-                quit()
+                _one_ply_ahead_game.send_black_move(_pair[0], _pair[1], _pair[2])
+            else:
+                _one_ply_ahead_game.send_black_move(_pair[0], _pair[1])
 
-            _potential_board.send_move(_pair[0], _pair[1])
-            _eval = -1 * (ceval.EvalPosition().eval_position(_potential_board)[2])
+            # evaluate all white moves
+            _possible_white_moves = _one_ply_ahead_game.generate_white_candidate_moves()
+            _board = _one_ply_ahead_game.get_board_state()
+            _potential_board = copy.deepcopy(_board)
 
-            if _eval > _max_bcentipawns:
-                _max_bcentipawns = _eval
-                _best_move = _pair
-            
-            continue
+
+            _max_wcentipawn_response = -9999999999
+
+            for _pairt in _possible_white_moves: # comeback moves
+                _potential_board = copy.deepcopy(_board)
+
+                if len(_pairt) != 2:
+                    _potential_board.send_move(_pairt[0], _pairt[1], _pairt[2])
+                else:
+                    _potential_board.send_move(_pairt[0], _pairt[1])
+
+                _eval = (ceval.EvalPosition().eval_position(_potential_board)[2]) 
+                print(_pair, _pairt, _eval)
+
+                if _eval > _max_wcentipawn_response:
+                    _max_wcentipawn_response = _eval
+
+            if _max_wcentipawn_response < _min_wcentipawns:
+                _min_wcentipawns = _max_wcentipawn_response
+                _best_move = _pair 
+
         
-        print(_best_move, _max_bcentipawns)
+        # print('best move', _best_move, _max_bcentipawns)
+        print('best move', _best_move, _min_wcentipawns)
 
         # play move
         if len(_best_move) == 2:
