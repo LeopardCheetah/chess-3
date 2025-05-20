@@ -1,15 +1,6 @@
 just a simple todo list 
-things to tackle about this chess program:
-(small)
-- make the bot be able to play on the white side with this new algorithm
-- >> also bring back the new ui and stuff
-- implement pawn promotion into this algorithm 
-- implement some temperature controls/randomness (gonna needa redo the system tho)
-- update the centipawn values and the board eval state number things
-
-(big)
-- work on a game tree to help with better move calculations
-- sync with lichess + actually move this bot over to lichess! 
-
+things to tackle about this chess program:     
+- alpha beta pruning?      
+- monte carlo trees or whatever?    
 
 things don't seem to be *that* bad so it's not like i'm gonna needa overhaul my code...right?

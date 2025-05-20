@@ -22,7 +22,6 @@ class EvalPosition:
         5, 10, 10,-20,-20, 10, 10,  5,
         0,  0,  0,  0,  0,  0,  0,  0
     ]
-
     knight_eval = [
         -50,-40,-30,-30,-30,-30,-40,-50,
         -40,-20,  0,  0,  0,  0,-20,-40,
@@ -33,8 +32,6 @@ class EvalPosition:
         -40,-20,  0,  5,  5,  0,-20,-40,
         -50,-40,-30,-30,-30,-30,-40,-50
     ]
-
-
     bishop_eval = [
         -20,-10,-10,-10,-10,-10,-10,-20,
         -10,  0,  0,  0,  0,  0,  0,-10,
@@ -45,7 +42,6 @@ class EvalPosition:
         -10,  5,  0,  0,  0,  0,  5,-10,
         -20,-10,-10,-10,-10,-10,-10,-20
     ]
-
     rook_eval = [
         0,  0,  0,  0,  0,  0,  0,  0,
         5, 10, 10, 10, 10, 10, 10,  5,
@@ -56,7 +52,6 @@ class EvalPosition:
         -5,  0,  0,  0,  0,  0,  0, -5,
         0,  0,  0,  5,  5,  0,  0,  0
     ]
-
     queen_eval = [
         -20,-10,-10, -5, -5,-10,-10,-20,
         -10,  0,  0,  0,  0,  0,  0,-10,
@@ -82,11 +77,17 @@ class EvalPosition:
     ]
 
 
+
+
     def __init__(self):
         pass # empty constructor
 
 
     def eval_position(self, position):
+        # more of a eval selector
+        return self.basic_position_eval(position)
+        
+    def basic_position_eval(self, position):  
         # position should be a board object
         
         wcentipawns = 0
@@ -166,6 +167,88 @@ class EvalPosition:
 
         return wcentipawns, bcentipawns, wcentipawns - bcentipawns
 
+
+    def space_eval_function(self, position):
+        # each square attacked is worth [_empty_space_constant] centipawns
+        _empty_space_constant = 3
+        # each square controlled but also with a piece on it is worth [_controlled_space_constant] centipawns
+        _controlled_space_constant = 10
+        _attacked_space_constant = 6 
+
+        
+        wcentipawns = 0
+        bcentipawns = 0
+
+        def get_piece_at_sq_index(_ind):
+            # follow convention a1 = 0, b1 = 1, a2 = 8, etc.
+            return position.get_piece_at_sq(chr(ord('a') + _ind % 8) + chr(ord('1') + _ind // 8))
+
+        for i in range(64):
+            # a1 = 0
+            # b1 = 1
+            # c1 = 2
+            # ...
+            # a2 = 8
+            # b2 = 9
+
+            _piece, _color = get_piece_at_sq_index(i)
+
+
+            if _color is None:
+                continue
             
+            if _color == 'w':
+                # white piece
+                if _piece == 'P':
+                    wcentipawns += self.P
 
+                    # check if pawn can move up, if so, grant it empty square
+                    wcentipawns += _empty_space_constant*(get_piece_at_sq_index(i + 8)[1] is None)
+                    # check NW
+                    if i % 8 != 0:
+                        # no switch statements i guess
+                        if get_piece_at_sq_index(i + 7)[1] is None:
+                            wcentipawns += _empty_space_constant
+                        elif get_piece_at_sq_index(i + 7)[1] == 'w':
+                            wcentipawns += _controlled_space_constant
+                        elif get_piece_at_sq_index(i + 7)[1] == 'b':
+                            wcentipawns += _attacked_space_constant
+                    
+                    continue
+                    
+                if _piece == 'N':
+                    ## TODO -- finish later
+                    wcentipawns += self.N
+                    # check all 8 squares
+                    # lots of if-statements :(
+                    _knight_jumps = [10, 17, 15, 6, -10, -17, -15, -6]
 
+                    for _j in _knight_jumps:
+                        _new_i = i + _j 
+
+                        if _new_i < 0 or _new_i > 63:
+                            continue 
+
+                        if ((_new_i // 8 - i // 8) in [1, 2, -1, -2]) ():
+                            pass
+                        
+
+                if _piece == 'B':
+                    wcentipawns += self.B
+                    wcentipawns += self.bishop_eval[i]
+
+                if _piece == 'R':
+                    wcentipawns += self.R 
+                    wcentipawns += self.rook_eval[i]
+
+                if _piece == 'Q':
+                    wcentipawns += self.Q 
+                    wcentipawns += self.queen_eval[i]
+
+                if _piece == 'K':
+                    wcentipawns += self.K
+                    wcentipawns += self.king_eval[i]
+
+                continue
+
+        return wcentipawns, bcentipawns, wcentipawns - bcentipawns
