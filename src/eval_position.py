@@ -179,9 +179,40 @@ class EvalPosition:
         wcentipawns = 0
         bcentipawns = 0
 
-        def get_piece_at_sq_index(_ind):
+        def _get_piece_at_sq_index(_ind):
             # follow convention a1 = 0, b1 = 1, a2 = 8, etc.
             return position.get_piece_at_sq(chr(ord('a') + _ind % 8) + chr(ord('1') + _ind // 8))
+
+        # sq = square to check
+        # color = original color of the piece (w/b -- used to check for controlled/attacked)
+        def _switch(sq, _col='w'):
+            if _get_piece_at_sq_index(sq)[1] is None:
+                return _empty_space_constant
+            elif _get_piece_at_sq_index(sq)[1] == _col:
+                return _controlled_space_constant
+            elif _get_piece_at_sq_index(sq)[1] != _col:
+                return _attacked_space_constant
+            
+            return '????'
+    
+        # automate diagonal/row/file checker/addition
+        def _centipawn_factory(start_i, increment_i, _col='w'):
+            _f = True
+            _i = start_i
+            c = 0
+            while _f:
+                _i += increment_i
+                if _i > 63 or _i < 0:
+                    _f = False
+                    continue 
+
+                c += _switch(_i, _col)
+                if _switch(_i, _col) != _empty_space_constant:
+                    _f = False
+                    continue 
+                continue
+                
+            return c
 
         for i in range(64):
             # a1 = 0
@@ -191,7 +222,7 @@ class EvalPosition:
             # a2 = 8
             # b2 = 9
 
-            _piece, _color = get_piece_at_sq_index(i)
+            _piece, _color = _get_piece_at_sq_index(i)
 
 
             if _color is None:
@@ -203,52 +234,89 @@ class EvalPosition:
                     wcentipawns += self.P
 
                     # check if pawn can move up, if so, grant it empty square
-                    wcentipawns += _empty_space_constant*(get_piece_at_sq_index(i + 8)[1] is None)
+                    wcentipawns += _empty_space_constant*(_get_piece_at_sq_index(i + 8)[1] is None)
                     # check NW
                     if i % 8 != 0:
                         # no switch statements i guess
-                        if get_piece_at_sq_index(i + 7)[1] is None:
-                            wcentipawns += _empty_space_constant
-                        elif get_piece_at_sq_index(i + 7)[1] == 'w':
-                            wcentipawns += _controlled_space_constant
-                        elif get_piece_at_sq_index(i + 7)[1] == 'b':
-                            wcentipawns += _attacked_space_constant
+                        wcentipawns += _switch(i + 7)
+                    
+                    if i % 8 != 7:
+                        wcentipawns += _switch(i + 9)
                     
                     continue
                     
                 if _piece == 'N':
-                    ## TODO -- finish later
                     wcentipawns += self.N
                     # check all 8 squares
                     # lots of if-statements :(
-                    _knight_jumps = [10, 17, 15, 6, -10, -17, -15, -6]
-
-                    for _j in _knight_jumps:
-                        _new_i = i + _j 
-
-                        if _new_i < 0 or _new_i > 63:
-                            continue 
-
-                        if ((_new_i // 8 - i // 8) in [1, 2, -1, -2]) ():
-                            pass
-                        
-
+                    # WNW
+                    if i % 8 > 1 and i // 8 < 7:
+                        wcentipawns += _switch(i + 6)
+                    
+                    if i % 8 > 0 and i // 8 < 6:
+                        wcentipawns += _switch(i + 15)
+                    
+                    if i % 8 < 7 and i // 8 < 6:
+                        wcentipawns += _switch(i + 17)
+                    
+                    if i % 8 < 6 and i // 8 < 7:
+                        wcentipawns += _switch(i + 10)
+                    
+                    # ESE
+                    if i % 8 < 6 and i // 8 > 0:
+                        wcentipawns += _switch(i - 6)
+                    
+                    if i % 8 < 7 and i // 8 > 1:
+                        wcentipawns += _switch(i - 15)
+                    
+                    if i % 8 > 0 and i // 8 > 1:
+                        wcentipawns += _switch(i - 17)
+                    
+                    if i % 8 > 1 and i // 8 > 0:
+                        wcentipawns += _switch(i - 10)
+                    
+                    continue
+    
                 if _piece == 'B':
                     wcentipawns += self.B
-                    wcentipawns += self.bishop_eval[i]
+                    # diagonal check
+                    wcentipawns += _centipawn_factory(i, 9)
+                    wcentipawns += _centipawn_factory(i, -9)
+                    wcentipawns += _centipawn_factory(i, 7)
+                    wcentipawns += _centipawn_factory(i, -7)
+                    continue 
 
                 if _piece == 'R':
                     wcentipawns += self.R 
-                    wcentipawns += self.rook_eval[i]
+                    wcentipawns += _centipawn_factory(i, 8)
+                    wcentipawns += _centipawn_factory(i, -8)
+                    wcentipawns += _centipawn_factory(i, 1)
+                    wcentipawns += _centipawn_factory(i, -1)
 
                 if _piece == 'Q':
                     wcentipawns += self.Q 
-                    wcentipawns += self.queen_eval[i]
+                    wcentipawns += _centipawn_factory(i, 9)
+                    wcentipawns += _centipawn_factory(i, -9)
+                    wcentipawns += _centipawn_factory(i, 7)
+                    wcentipawns += _centipawn_factory(i, -7)
+
+                    wcentipawns += _centipawn_factory(i, 8)
+                    wcentipawns += _centipawn_factory(i, -8)
+                    wcentipawns += _centipawn_factory(i, 1)
+                    wcentipawns += _centipawn_factory(i, -1)
 
                 if _piece == 'K':
                     wcentipawns += self.K
-                    wcentipawns += self.king_eval[i]
+                    _ksquares = [8, 9, 1, -7, -8, -9, -1, 7] # e3, f3, f2, f1, e1, d1, d2, d3 for king @e2
+                    
+                    for _k in _ksquares:
+                        _i = i + _k 
+                        if _i < 0 or _i > 63:
+                            continue
+
+                        wcentipawns += _switch(_i)
 
                 continue
+            
 
         return wcentipawns, bcentipawns, wcentipawns - bcentipawns

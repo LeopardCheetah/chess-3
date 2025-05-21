@@ -241,7 +241,7 @@ while not game_finished:
 
 
 
-
+        # check two plys ahead 
         _one_ply_ahead_game = copy.deepcopy(game)
         _min_wcentipawns = 99999999999999
         _best_move = (None, None)
