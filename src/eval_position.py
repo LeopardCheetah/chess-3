@@ -85,7 +85,8 @@ class EvalPosition:
 
     def eval_position(self, position):
         # more of a eval selector
-        return self.basic_position_eval(position)
+        # return self.basic_position_eval(position)
+        return self.space_eval_function(position)
         
     def basic_position_eval(self, position):  
         # position should be a board object
@@ -317,6 +318,91 @@ class EvalPosition:
                         wcentipawns += _switch(_i)
 
                 continue
-            
+
+            if _color == 'b':
+                if _piece == 'P':
+                    bcentipawns += self.P
+                    bcentipawns += _empty_space_constant*(_get_piece_at_sq_index(i - 8)[1] is None)
+                    if i % 8 != 0:
+                        bcentipawns += _switch(i - 7, 'b')
+                    
+                    if i % 8 != 7:
+                        bcentipawns += _switch(i - 9, 'b')
+                    continue
+                    
+                if _piece == 'N':
+                    bcentipawns += self.N
+                    # check all 8 squares
+                    # lots of if-statements :(
+                    # WNW
+                    if i % 8 > 1 and i // 8 < 7:
+                        bcentipawns += _switch(i + 6, 'b')
+                    
+                    if i % 8 > 0 and i // 8 < 6:
+                        bcentipawns += _switch(i + 15, 'b')
+                    
+                    if i % 8 < 7 and i // 8 < 6:
+                        bcentipawns += _switch(i + 17, 'b')
+                    
+                    if i % 8 < 6 and i // 8 < 7:
+                        bcentipawns += _switch(i + 10, 'b')
+                    
+                    # ESE
+                    if i % 8 < 6 and i // 8 > 0:
+                        bcentipawns += _switch(i - 6, 'b')
+                    
+                    if i % 8 < 7 and i // 8 > 1:
+                        bcentipawns += _switch(i - 15, 'b')
+                    
+                    if i % 8 > 0 and i // 8 > 1:
+                        bcentipawns += _switch(i - 17, 'b')
+                    
+                    if i % 8 > 1 and i // 8 > 0:
+                        bcentipawns += _switch(i - 10, 'b')
+                    
+                    continue
+    
+                if _piece == 'B':
+                    # good thing diagonals + files + other are all symmetrical :)
+
+                    bcentipawns += self.B
+                    bcentipawns += _centipawn_factory(i, 9, 'b')
+                    bcentipawns += _centipawn_factory(i, -9, 'b')
+                    bcentipawns += _centipawn_factory(i, 7, 'b')
+                    bcentipawns += _centipawn_factory(i, -7, 'b')
+                    continue 
+
+                if _piece == 'R':
+                    bcentipawns += self.R 
+                    bcentipawns += _centipawn_factory(i, 8, 'b')
+                    bcentipawns += _centipawn_factory(i, -8, 'b')
+                    bcentipawns += _centipawn_factory(i, 1, 'b')
+                    bcentipawns += _centipawn_factory(i, -1, 'b')
+
+                if _piece == 'Q':
+                    bcentipawns += self.Q 
+                    bcentipawns += _centipawn_factory(i, 9, 'b')
+                    bcentipawns += _centipawn_factory(i, -9, 'b')
+                    bcentipawns += _centipawn_factory(i, 7, 'b')
+                    bcentipawns += _centipawn_factory(i, -7, 'b')
+
+                    bcentipawns += _centipawn_factory(i, 8, 'b')
+                    bcentipawns += _centipawn_factory(i, -8, 'b')
+                    bcentipawns += _centipawn_factory(i, 1, 'b')
+                    bcentipawns += _centipawn_factory(i, -1, 'b')
+
+                if _piece == 'K':
+                    bcentipawns += self.K
+                    _ksquares = [8, 9, 1, -7, -8, -9, -1, 7] # symmetrical
+                    
+                    for _k in _ksquares:
+                        _i = i + _k 
+                        if _i < 0 or _i > 63:
+                            continue
+
+                        bcentipawns += _switch(_i, 'b')
+
+                continue
+
 
         return wcentipawns, bcentipawns, wcentipawns - bcentipawns
