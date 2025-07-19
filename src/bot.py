@@ -35,6 +35,7 @@ player_color = 0
 
 game = cgame.ChessGame()
 evaluator_object = ceval.EvalPosition() # i hate this oop
+suppress = True # suppress long engine output
 
 game_finished = False
 while not game_finished:
@@ -144,7 +145,7 @@ while not game_finished:
         # player is white
         # query for move, it is player's turn
         # query in the form [start_sq] [end_sq] [promotion]
-        
+        print()
         print("Please enter your move in the form '[starting square] [ending square] [promotion]'. If you're move does not need promotion, leave it blank.")
         print("For example, entering in 'e2 e4' will move a piece (if it exists) from e2 to e4. Similarly, 'a7 a8 N' will move a piece from a7 to a8 and attempt to promote it to a knight.")
         print()
@@ -271,7 +272,9 @@ while not game_finished:
                     _potential_board.send_move(_pairt[0], _pairt[1])
 
                 _eval = (ceval.EvalPosition().eval_position(_potential_board)[2]) 
-                print(_pair, _pairt, _eval)
+
+                if not suppress:
+                    print(_pair, _pairt, _eval)
 
                 if _eval > _max_wcentipawn_response:
                     _max_wcentipawn_response = _eval
