@@ -1635,7 +1635,7 @@ class ChessGame:
             
             self.black_piece_locations.remove(end_sq[0] + chr(ord(end_sq[1]) - 1))
             # update board
-            self.game_board.change_square(end_sq[0] + chr(ord(end_sq[1]) - 1), ".")
+            self.game_board.change_sq_to_piece(end_sq[0] + chr(ord(end_sq[1]) - 1), None, None) # none type -> resets square
 
 
 
